@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package marketplace;
+option go_package = "./marketplace-gen";
+
+message Creator {
+  string id = 1;
+  string email = 2;
+}
+
+message GetCreatorRequest {
+  string id = 1;
+}
+
+message GetCreatorResponse {
+  Creator creator = 1;
+}
+
+message GetCreatorsRequest {
+}
+
+message GetCreatorsResponse {
+  repeated Creator creators = 1;
+}
+
+enum SortOrder {
+  ASCENDING = 0;
+  DESCENDING = 1;
+}
+
+message GetSortedCreatorsRequest {
+  int32 limit = 1;
+  SortOrder order = 2;
+}
+
+message GetSortedCreatorsResponse {
+  repeated Creator creators = 1;
+}
+
+service CreatorsService {
+  rpc GetCreators(GetCreatorsRequest) returns (GetCreatorsResponse);
+  rpc GetSortedCreators(GetSortedCreatorsRequest) returns (GetSortedCreatorsResponse);
+  rpc GetCreator(GetCreatorRequest) returns (GetCreatorResponse);
+}
+
+
+
+
+message Product {
+  string id = 1;
+  string creatorId = 2;
+  string name = 3;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message GetProductsRequest {
+}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+}
+
+service ProductsService {
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+}

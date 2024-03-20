@@ -49,7 +49,7 @@ service CreatorsService {
 message Product {
   string id = 1;
   string creatorId = 2;
-  string name = 3;
+  string createTime = 4;
 }
 
 message GetProductRequest {

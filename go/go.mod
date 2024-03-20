@@ -3,6 +3,7 @@ module github.com/mikayelabrahamyan/task/go
 go 1.22.1
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/golang/protobuf v1.5.3 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect

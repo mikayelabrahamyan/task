@@ -4,6 +4,8 @@ protoc --proto_path=. --go_out=go --go-grpc_out=go marketplace.proto
 
 (cd go && go run server.go)
 
+(cd go && go test)
+
 npm install -g grpc-tools grpc_tools_node_protoc_ts
 
 grpc_tools_node_protoc \

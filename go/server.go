@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"os"
 	"sort"
+	"time"
 
 	mk "github.com/mikayelabrahamyan/task/go/marketplace-gen"
 	"google.golang.org/grpc"
@@ -49,16 +51,40 @@ func (s *server) GetSortedCreators(ctx context.Context, in *mk.GetSortedCreators
 	var data Data
 	json.Unmarshal(file, &data)
 
-	productCount := make(map[string]int)
-	for _, product := range data.Products {
-		productCount[product.CreatorId]++
+	type Pair struct {
+		First  int
+		Second time.Time
 	}
 
-	sort.Slice(data.Creators, func(i, j int) bool {
-		if in.Order == mk.SortOrder_ASCENDING {
-			return productCount[data.Creators[i].Id] < productCount[data.Creators[j].Id]
+	productCount := make(map[string]Pair)
+	layout := "2006-01-02T15:04:05.000000-07:00"
+	for _, product := range data.Products {
+		timestamp, timeErr := time.Parse(layout, product.CreateTime)
+		if timeErr != nil {
+			fmt.Printf("timeErr: %+v\n", timeErr)
+			timestamp = time.Time{}
 		}
-		return productCount[data.Creators[i].Id] > productCount[data.Creators[j].Id]
+		if pair, exists := productCount[product.CreatorId]; exists {
+			pair.First++
+			if timestamp.After(productCount[product.CreatorId].Second) {
+				pair.Second = timestamp
+			}
+			productCount[product.CreatorId] = pair
+		} else {
+			productCount[product.CreatorId] = Pair{First: 1, Second: timestamp}
+		}
+	}
+	sort.Slice(data.Creators, func(i, j int) bool {
+		result := productCount[data.Creators[i].Id].First < productCount[data.Creators[j].Id].First
+
+		if productCount[data.Creators[i].Id].First == productCount[data.Creators[j].Id].First {
+			result = productCount[data.Creators[i].Id].Second.Before(productCount[data.Creators[j].Id].Second)
+		}
+
+		if in.Order == mk.SortOrder_ASCENDING {
+			return result
+		}
+		return !result
 	})
 
 	var sortedCreators []*mk.Creator
